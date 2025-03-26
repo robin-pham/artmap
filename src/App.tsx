@@ -3,9 +3,11 @@ import Map, { Marker, NavigationControl, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./App.css";
 import { CivicArtType } from "./type";
-import artGeoJson from "./assets/CivicArtCollection_20250315.json";
+import artGeoJson from "./assets/CivicArtCollection_categorized.json";
 import { Drawer } from "vaul";
 import { ArtworkContent } from "./components/ArtworkContent";
+import { CategoryFilter } from "./components/CategoryFilter";
+import { ArtworkCategory } from "./types/categories";
 
 function App() {
   const [artData, setArtData] = useState<{
@@ -20,6 +22,10 @@ function App() {
   >(null);
   const [isMobile, setIsMobile] = useState(false);
   const [snap, setSnap] = useState<number | string | null>("250px"); // Smaller initial height
+  const [selectedCategories, setSelectedCategories] = useState<
+    ArtworkCategory[]
+  >([]);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   // Load GeoJSON data
   useEffect(() => {
@@ -40,6 +46,21 @@ function App() {
     setSelectedArt(null);
     setPopupCoordinates(null);
   };
+
+  const handleMapClick = () => {
+    deselectArt();
+    setIsFilterExpanded(false);
+  };
+
+  // Filter features based on selected categories
+  const filteredFeatures = artData?.features.filter(
+    (feature) =>
+      selectedCategories.length === 0 ||
+      selectedCategories.includes(
+        feature.properties.category as ArtworkCategory
+      )
+  );
+
   return (
     <div className="app-container">
       <div className="map-container">
@@ -51,27 +72,56 @@ function App() {
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-          onClick={deselectArt}
+          onClick={handleMapClick}
         >
           <NavigationControl position="top-right" />
 
-          {artData?.features.map((feature, index) => {
+          <CategoryFilter
+            selectedCategories={selectedCategories}
+            onCategoryChange={setSelectedCategories}
+            filteredCount={filteredFeatures?.length || 0}
+            totalCount={artData?.features.length || 0}
+            isExpanded={isFilterExpanded}
+            onExpandChange={(expanded) => {
+              setIsFilterExpanded(expanded);
+              if (expanded) {
+                deselectArt(); // Close popup when opening filter
+              }
+            }}
+          />
+
+          {filteredFeatures?.map((feature, index) => {
             const properties = feature.properties;
-            if (!properties.longitude || !properties.latitude) {
-              return null;
+            const potentialCoordinates = {
+              longitude: 0,
+              latitude: 0,
+            };
+
+            if (!feature.geometry.coordinates) {
+              console.log("missing coordinates");
+            } else {
+              potentialCoordinates.longitude = feature.geometry.coordinates[0];
+              potentialCoordinates.latitude = feature.geometry.coordinates[1];
+            }
+
+            if (
+              potentialCoordinates.longitude === 0 ||
+              potentialCoordinates.latitude === 0
+            ) {
+              console.log("missing both");
             }
 
             return (
               <Marker
                 key={`marker-${index}`}
-                longitude={parseFloat(properties.longitude)}
-                latitude={parseFloat(properties.latitude)}
+                longitude={parseFloat(potentialCoordinates.longitude)}
+                latitude={parseFloat(potentialCoordinates.latitude)}
                 onClick={(e) => {
                   e.originalEvent.stopPropagation();
                   setSelectedArt(properties);
                   setPopupCoordinates([
-                    parseFloat(properties.longitude),
-                    parseFloat(properties.latitude),
+                    parseFloat(potentialCoordinates.longitude),
+                    parseFloat(potentialCoordinates.latitude),
                   ]);
                 }}
               >

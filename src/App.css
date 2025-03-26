@@ -392,3 +392,118 @@
   width: 1px;
   white-space: nowrap;
 }
+
+/* Add these styles to your existing App.css */
+
+.category-filter {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  max-width: 300px;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.filter-count {
+  background: #3b82f6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.filter-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  border-top: 1px solid #eee;
+  background-color: white;
+}
+
+.category-filter.expanded .filter-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #333;
+}
+
+.category-item:hover {
+  background-color: #f8f9fa;
+}
+
+.category-label {
+  margin-left: 8px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .category-filter {
+    top: 20px;
+    left: 20px;
+    transform: none;
+    width: calc(100% - 40px);
+    max-width: 300px;
+  }
+
+  .filter-content {
+    max-height: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .category-filter.expanded .filter-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .category-filter.expanded {
+    transform: none;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .category-item {
+    padding: 12px 20px;
+  }
+
+  .category-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Add styles for checkbox to make it more visible */
+.category-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #3b82f6;
+}

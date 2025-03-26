@@ -1,4 +1,6 @@
-export type CivicArtType = {
+import { ArtworkCategory } from "./types/categories";
+
+export interface CivicArtType {
   zip_code: string;
   number_of_districts: string;
   latitude: string;
@@ -20,4 +22,5 @@ export type CivicArtType = {
   facility: null;
   data_as_of: Date;
   street_address_or_intersection: string;
-};
+  category: ArtworkCategory;
+}
